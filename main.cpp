@@ -69,6 +69,9 @@ int test_PSC(int argc, char *argv[]){
  std::fill_n(x, n, 1.0);
  int num_blks = 0;
  double eps = 1e-8;
+ mkl_set_dynamic(0);
+ mkl_set_num_threads(1);
+ mkl_domain_set_num_threads(1, MKL_DOMAIN_BLAS);
 
  /// Scalarized code
  std::vector<sym_lib::timing_measurement> t_spmv_array;
@@ -133,9 +136,8 @@ int test_PSC(int argc, char *argv[]){
  auto check_psc_2d4 = sym_lib::is_equal<double>(0, m, y, y_psc_2d4, eps);
 
  std::cout<<matrix_name<<","<<m<<","<<n<<","<<A_csr->nnz<<",";
- std::cout<<t_baseline_sec<<","<<t_blas_sec<<","<<t_pscg_sec<<","<<t_psc2d_sec<<","<<t_psc2d4_sec<<",";
+ std::cout<< std::setprecision(25)<<t_baseline_sec<<","<<t_blas_sec<<","<<t_pscg_sec<<","<<t_psc2d_sec<<","<<t_psc2d4_sec<<",";
  std::cout<<check_blas<<","<<check_psc_g<<","<<check_psc_2d<<","<<check_psc_2d4<<",";
-
 
  delete A_csr;
  delete A_csc;
