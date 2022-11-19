@@ -2,8 +2,12 @@ import numpy as np
 from numpy import ma
 import pandas as pd
 import matplotlib.pyplot as plt
-from numpy.polynomial.polynomial import polyfit
+import matplotlib
 
+font = {'weight': 'bold',
+        'size': 22}
+
+matplotlib.rc('font', **font)
 
 
 def filter(df, **kwargs):
@@ -23,30 +27,34 @@ def filter(df, **kwargs):
 def plot():
     df = pd.read_csv("//home/kazem/development/psc_example/psc.csv")
     time_scalarized = df["Scalarized"].values
-    time_blas = df["BLAS"].values
-    time_pscg = df["PSC G"].values
-    time_psc2d = df["PSC 2D"].values
-    time_psc2d4 = df["PSC 2D-4"].values
+    time_blas = df["BLAS"].values*1e3
+    time_pscg = df["PSC G"].values*1e3
+    time_psc2d = df["PSC 2D"].values*1e3
+    time_psc2d4 = df["PSC 2D-4"].values*1e3
     nnz = df["NNZ"].values
-    fig, (ax0, ax1) = plt.subplots(1, 2)
-    #ax = plt.gca()
-  #  plt.scatter(nnz, time_scalarized, c='y')
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(20,12))
 
-    ax0.scatter(nnz, time_blas, marker='^', c='black')
-    #ax.scatter(nnz, time_psc2d, marker='o', c='m')
-    ax0.scatter(nnz, time_psc2d4, marker='o', c='red')
+    ax0.scatter(nnz, time_blas, marker='^', c='black', label="BLAS-based SpMV")
+    #ax0.scatter(nnz, time_psc2d, marker='o', c='m')
+    ax0.scatter(nnz, time_psc2d4, marker='o', c='red', label="PSC-based SpMV")
 
     #ax1.scatter(nnz, time_scalarized / time_blas, c='blue')
-    ax1.scatter(nnz, time_blas / time_psc2d4, c='red')
+    ax1.scatter(nnz, time_blas / time_psc2d4, c='m')
 
-    print( np.average(time_blas/ time_psc2d4) )
+    print("Average speedup is: ", np.average(time_blas/time_psc2d4))
 
-    #axs[0, 0].set_yscale('log')
-
-    ax0.set(xlabel="Number of NonZero Elements", ylabel="Time (sec)")
-    plt.title("Vectorization using PSC vs. BLAS in single-thread")
-    plt.legend()
-    plt.show()
+    ax1.plot(nnz, np.ones(len(nnz)), c='black')
+    ax1.set_yticks(list(range(1, 6, 2)) + list(range(10,50, 5)))
+    ax0.set(xlabel="Number of NonZero Elements", ylabel="Time (milli-seconds)")
+    ax1.set(xlabel="Number of NonZero Elements", ylabel="PSC-based SpMV speedup over BLAS-based SpMV")
+    ax0.spines['top'].set_visible(False)
+    ax0.spines['right'].set_visible(False)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    ax0.legend(loc='upper left')
+    fig.suptitle('Vectorization using PSC vs. BLAS in single-thread', fontsize=30)
+    #plt.show()
+    plt.savefig("psc_blas.png")
 
 
 if __name__ == '__main__':
