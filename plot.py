@@ -21,24 +21,29 @@ def filter(df, **kwargs):
 
 
 def plot():
-    df = pd.read_csv("/Users/kazem/development/psc_example/psc.csv")
+    df = pd.read_csv("//home/kazem/development/psc_example/psc.csv")
     time_scalarized = df["Scalarized"].values
     time_blas = df["BLAS"].values
     time_pscg = df["PSC G"].values
     time_psc2d = df["PSC 2D"].values
     time_psc2d4 = df["PSC 2D-4"].values
     nnz = df["NNZ"].values
+    fig, (ax0, ax1) = plt.subplots(1, 2)
+    #ax = plt.gca()
+  #  plt.scatter(nnz, time_scalarized, c='y')
 
-    #plt.scatter(nnz, time_scalarized)
+    ax0.scatter(nnz, time_blas, marker='^', c='black')
+    #ax.scatter(nnz, time_psc2d, marker='o', c='m')
+    ax0.scatter(nnz, time_psc2d4, marker='o', c='red')
 
-    plt.scatter(nnz, time_blas, marker='^', c='black')
-    #plt.scatter(nnz, time_psc2d, marker='o', c='m')
-    plt.scatter(nnz, time_psc2d4, marker='o', c='red')
+    #ax1.scatter(nnz, time_scalarized / time_blas, c='blue')
+    ax1.scatter(nnz, time_blas / time_psc2d4, c='red')
 
+    print( np.average(time_blas/ time_psc2d4) )
 
+    #axs[0, 0].set_yscale('log')
 
-    plt.xlabel("Number of NonZero Elements")
-    plt.ylabel("Time (sec)")
+    ax0.set(xlabel="Number of NonZero Elements", ylabel="Time (sec)")
     plt.title("Vectorization using PSC vs. BLAS in single-thread")
     plt.legend()
     plt.show()
