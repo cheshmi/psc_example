@@ -3,6 +3,7 @@ from numpy import ma
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
+import sys
 
 font = {'weight': 'bold',
         'size': 22}
@@ -24,8 +25,8 @@ def filter(df, **kwargs):
     return df[bool_index]
 
 
-def plot():
-    df = pd.read_csv("//home/kazem/development/psc_example/psc.csv")
+def plot(csv_name):
+    df = pd.read_csv(csv_name)
     time_scalarized = df["Scalarized"].values
     time_blas = df["BLAS"].values*1e3
     time_pscg = df["PSC G"].values*1e3
@@ -53,9 +54,10 @@ def plot():
     ax1.spines['right'].set_visible(False)
     ax0.legend(loc='upper left')
     fig.suptitle('Vectorization using PSC vs. BLAS in single-thread', fontsize=30)
-    #plt.show()
+    plt.show()
     plt.savefig("psc_blas.png")
 
 
 if __name__ == '__main__':
-    plot()
+    csv_name = sys.argv[1] # the path to the CSV file
+    plot(csv_name)

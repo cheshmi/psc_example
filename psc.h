@@ -13,6 +13,7 @@
 
 #include<immintrin.h>
 
+// For now tested for AVX2
 #ifdef __AVX2__
  typedef union
  {

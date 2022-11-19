@@ -27,3 +27,5 @@ for i0 in 4 8 16 32 64; do
 done
 
 
+#plotting
+${PYTHON}  plot.py ./psc.csv

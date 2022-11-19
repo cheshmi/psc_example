@@ -25,15 +25,18 @@ void spmv_baseline(const int m, const int *Ap, const int *Ai, const double *Ax, 
 void spmv_blas(const double* Ax, const int i0, const int ax_offset, const int num_block, const int *col_loc, const int *col_blk_size,
                const double *x, double *y);
 
-void spmv_psc(const int m, const int *Ai, const double *Ax, const double *x,
-                        const int offset, const int lb, const int ub, int lbc, int ubc);
-
+/// A specialized function for a specific pattern.
+/// \param A
+/// \param blk_sizes
+/// \param col_loc
+/// \param nnz_offset
+/// \param num_blks
 void extracting_meta_data(const sym_lib::CSR *A, std::vector<int>& blk_sizes, std::vector<int>& col_loc,
                           int &nnz_offset, int &num_blks){
  nnz_offset = A->p[1] - A->p[0];
  int c_blk_size = 0;
  col_loc.push_back(0);
- for (int j = A->p[0]; j < A->p[1]; ++j) {
+ for (int j = A->p[0]; j < A->p[1]; ++j) {// checks only one row since all rows are similar.
   if(A->i[j] + 1 == A->i[j+1]){
    c_blk_size++;
   } else {
@@ -100,7 +103,7 @@ int test_PSC(int argc, char *argv[]){
  auto t_blas_sec = time_median(t_blas_array).elapsed_time;
  auto check_blas = sym_lib::is_equal<double>(0, m, y, y_blas, eps);
 
- /// PSC
+ /// PSC Compile-time
  std::vector<sym_lib::timing_measurement> t_pscg_array;
  for (int i = 0; i < NTIMES; ++i) {
   std::fill_n(y_psc_g, m, .0);
@@ -113,6 +116,7 @@ int test_PSC(int argc, char *argv[]){
  auto check_psc_g = sym_lib::is_equal<double>(0, m, y, y_psc_g, eps);
 
 
+ /// PSC 2D unroll-2
  std::vector<sym_lib::timing_measurement> t_psc2d_array;
  for (int i = 0; i < NTIMES; ++i) {
   std::fill_n(y_psc_2d, m, .0);
@@ -124,6 +128,7 @@ int test_PSC(int argc, char *argv[]){
  auto t_psc2d_sec = time_median(t_psc2d_array).elapsed_time;
  auto check_psc_2d = sym_lib::is_equal<double>(0, m, y, y_psc_2d, eps);
 
+ /// PSC 2D uroll-4
  std::vector<sym_lib::timing_measurement> t_psc2d4_array;
  for (int i = 0; i < NTIMES; ++i) {
   std::fill_n(y_psc_2d4, m, .0);
